@@ -82,7 +82,7 @@ class PostCard extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                          'Could not update this favorite. Please try again.',
+                          "Couldn't update this favorite. Try again.",
                         ),
                       ),
                     );

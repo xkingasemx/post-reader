@@ -31,7 +31,7 @@ class _PostsScreenState extends State<PostsScreen> {
     setState(() {
       _feed = next;
     });
-    // FutureBuilder displays the error and Retry action if this fails.
+    // FutureBuilder shows the error and the retry button.
     try {
       await next;
     } on Exception {
@@ -42,7 +42,7 @@ class _PostsScreenState extends State<PostsScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('Posts'),
+      title: const Text('All posts'),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 14),
@@ -78,11 +78,11 @@ class _PostsScreenState extends State<PostsScreen> {
             final noCache = snapshot.error is NoCachedPosts;
             return ListMessage(
               icon: noCache ? Icons.cloud_off_outlined : Icons.error_outline,
-              title: noCache ? 'No cached posts yet' : 'Could not load posts',
+              title: noCache ? 'Go online to load posts' : "Posts didn't load",
               body: noCache
-                  ? 'Connect to the internet, then tap Retry to download the feed.'
-                  : 'Please try loading the feed again.',
-              action: 'Retry',
+                  ? 'Connect once to save posts for offline reading.'
+                  : 'Check your connection and try again.',
+              action: 'Try again',
               onPressed: _refresh,
             );
           }
@@ -99,7 +99,7 @@ class _PostsScreenState extends State<PostsScreen> {
             children: [
               ListHeading(
                 count: feed.posts.length,
-                status: feed.fromCache ? 'Cached feed' : 'Live feed',
+                status: feed.fromCache ? 'Saved copy' : 'Up to date',
                 icon: feed.fromCache
                     ? Icons.offline_pin_outlined
                     : Icons.cloud_done_outlined,

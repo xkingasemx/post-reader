@@ -15,22 +15,26 @@ Future<void> main() async {
   final favoritesBox = await Hive.openBox<Post>('favoritesBox');
 
   runApp(
-    PostsApp(
+    PostReaderApp(
       posts: PostService(postsBox),
       favorites: FavoritesService(favoritesBox),
     ),
   );
 }
 
-class PostsApp extends StatelessWidget {
-  const PostsApp({super.key, required this.posts, required this.favorites});
+class PostReaderApp extends StatelessWidget {
+  const PostReaderApp({
+    super.key,
+    required this.posts,
+    required this.favorites,
+  });
 
   final PostService posts;
   final FavoritesService favorites;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: 'Offline Posts',
+    title: 'Post Reader',
     debugShowCheckedModeBanner: false,
     theme: readerTheme(),
     home: PostsScreen(posts: posts, favorites: favorites),

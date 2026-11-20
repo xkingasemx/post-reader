@@ -1,5 +1,5 @@
-name: offline_posts
-description: An offline posts reader with persistent favorites for Section 5.
+name: post_reader
+description: A Flutter app for reading posts and saving favorites offline.
 publish_to: none
 version: 1.0.0+1
 

@@ -1,79 +1,56 @@
-# Offline Posts
+# Post Reader
 
-A Flutter app for the Section 5 Hive assignment. Read the JSONPlaceholder feed, tap the star beside a post, and open **Favorites** to find it again. Both lists stay available after a successful download, even when the app restarts without an internet connection.
+Post Reader downloads posts from JSONPlaceholder so you can read them offline. Tap the star next to a post to keep it in **My favorites**. This is the Flutter and Hive project for Section 5.
 
-## Run the project
+## Run the app
 
-Open the folder containing `pubspec.yaml` in VS Code or a terminal. The project was tested with Flutter **3.47.8** and Dart **3.13.7**. The Hive adapter and dependency lockfile are included.
+Connect a phone or start a simulator, then run these commands in the project folder.
 
 ```sh
 flutter pub get
-flutter devices
+flutter run
 ```
 
-On a Mac with Xcode configured, run `flutter run -d macos`. For an Android device or iOS simulator, run `flutter run -d <device-id>` using the ID printed by `flutter devices`. Start the app online once so it can download the feed.
+You can also run `flutter run -d macos` on a Mac or `flutter run -d chrome` for a browser preview. Go online for the first launch so there's a feed to read later.
 
-For a quick browser preview, run `flutter run -d chrome`. For a full offline browser restart, build and serve the release app with the commands below.
+## Posts and favorites
+
+These screenshots are from the Flutter web app. After the browser was closed and reopened offline, all 100 posts were still there. Posts 1 and 3 were still starred.
+
+| All posts | Star two posts | Open Favorites |
+| --- | --- | --- |
+| ![The feed with 100 posts](docs/screenshots/all-posts.png) | ![Posts 1 and 3 with filled stars](docs/screenshots/starred-posts.png) | ![Posts 1 and 3 in My favorites](docs/screenshots/my-favorites.png) |
+
+| Refresh the list | Reopen offline | View favorites offline |
+| --- | --- | --- |
+| ![A refresh in progress with both stars still filled](docs/screenshots/refreshing.png) | ![All 100 posts with the Saved copy label](docs/screenshots/posts-offline.png) | ![Both favorites after restarting offline](docs/screenshots/favorites-offline.png) |
+
+| Unstar a post | Remove the last favorite | First launch without a connection |
+| --- | --- | --- |
+| ![Only post 3 is still a favorite](docs/screenshots/remove-favorite.png) | ![Empty favorites list with a Back to posts button](docs/screenshots/empty-favorites.png) | ![The message to go online for the first download](docs/screenshots/first-launch-offline.png) |
+
+## Try it offline
+
+1. Open the app online and star two posts. Pull down to refresh. Their stars should stay filled.
+2. Close the app, switch on airplane mode with Wi-Fi off, and reopen it. **All posts** shows **Saved copy**.
+3. Open **Favorites** and unstar a post. It disappears from the list. Go back to **All posts** to see its outlined star.
+
+To try a full restart in a browser, build the web app and serve it locally.
 
 ```sh
 flutter build web --release --no-web-resources-cdn
 python3 -m http.server 8080 --directory build/web
 ```
 
-Open **http://localhost:8080** in a normal browser window. Reopen that same address using the same browser profile so Hive can read the saved data. The release build stores the app files on the first visit. The posts and favorites are stored separately in Hive.
+Visit `http://localhost:8080` online first. Use the same address and browser profile when you reopen it offline so the app can find your saved posts.
 
-## Screenshots
+## How saving works
 
-These captures show the running Flutter release app in a mobile-sized browser window. Posts 1 and 3 are used throughout the sequence.
+Hive keeps the last download in `postsBox`. Each starred post gets its own copy in `favoritesBox`, keyed by post ID. Refreshing the feed only updates `postsBox`, so it doesn't erase your favorites.
 
-| Load the feed | Add favorites | Open Favorites |
-| --- | --- | --- |
-| ![Online feed with 100 posts and outlined stars](docs/screenshots/01-live-feed.png) | ![Filled stars beside posts 1 and 3](docs/screenshots/02-add-favorites.png) | ![Favorites screen showing the same two post cards](docs/screenshots/03-favorites.png) |
-| The first download returns 100 posts. | Tapping a star updates that card immediately. | The **Favorites** button in the app bar opens the saved list. |
-
-| Refresh the feed | Restart offline | Open Favorites offline |
-| --- | --- | --- |
-| ![Feed refreshing with both stars still filled](docs/screenshots/04-refresh.png) | ![Cached feed after a cold offline restart](docs/screenshots/05-offline-feed.png) | ![Both saved posts after the offline restart](docs/screenshots/06-offline-favorites.png) |
-| Pull down or use the refresh button. Both stars survive the refresh. | **Cached feed** identifies the 100 posts that Hive restored. | Posts 1 and 3 retain their titles and bodies with the network disabled. |
-
-| Remove a favorite | Remove the last favorite | Start offline with no saved feed |
-| --- | --- | --- |
-| ![Only post 3 remains after removing post 1](docs/screenshots/07-remove-favorite.png) | ![No favorites yet with a Browse posts button](docs/screenshots/08-empty-favorites.png) | ![No cached posts yet with a Retry button](docs/screenshots/09-no-cache.png) |
-| Tapping the star on post 1 leaves post 3 in the list. | **Browse posts** returns to the feed, where the stars are outlined again. | Connect to the internet and tap **Retry** to download the first copy. |
-
-## Reproduce the airplane-mode test
-
-1. On a phone or emulator, launch the installed app online. Wait for **Live feed**.
-2. Star posts **1** and **3**, open **Favorites**, and check that both appear. Return to **Posts** and pull down to refresh.
-3. Fully close the app. Turn on airplane mode and make sure Wi-Fi is off.
-4. Reopen the app from its icon. **Posts** shows **Cached feed**. Open **Favorites** again and check for posts **1** and **3**.
-5. Remove a favorite while offline. Return to **Posts** and check that its star is outlined there too.
-
-The browser restart shown above used two separate browser processes. After the online run, the browser's ordinary HTTP cache was cleared, the app's local web server was stopped, and a new process opened the same profile with networking disabled. The API request failed, Hive returned all 100 posts, and both saved favorites could still be removed offline.
-
-## How storage works
-
-| Component | Responsibility |
-| --- | --- |
-| `lib/main.dart` | Initializes Hive, registers `PostAdapter`, and opens both boxes before showing the app. |
-| `lib/models/post_model.dart` | Maps the API fields to a `Post`. Its adapter uses type ID 0 and four stable Hive field indexes. |
-| `lib/services/post_service.dart` | Downloads and validates the feed. On success it updates `postsBox` by post ID and removes stale IDs. If the API fails, it returns the last successful download. |
-| `lib/services/favorites_service.dart` | Provides `toggleFavorite(Post post)`, `isFavorite(int id)`, and `getFavorites()`. It saves a copy under the post ID because a Hive object instance belongs to one box at a time. |
-| `lib/screens/` and `lib/widgets/post_card.dart` | Both screens use the same card. They listen for changes to `favoritesBox` so tapping a star updates both views. |
-
-The feed service only writes to `postsBox`. A favorite stays in `favoritesBox` even if the source later removes the post. The feed displays any saved posts while checking for updates.
-
-## Run the checks
+## Tests
 
 ```sh
 flutter analyze
 flutter test
-```
-
-The eight tests cover adding and removing favorites, copying Hive objects, refreshing with stale IDs, reopening both boxes from disk, handling an empty cache, preserving a good cache after an API error, overlapping refresh requests, and updating the screens after a tap or retry.
-
-After changing the model's Hive annotations, regenerate the included adapter with the command below.
-
-```sh
-dart run build_runner build --delete-conflicting-outputs
 ```

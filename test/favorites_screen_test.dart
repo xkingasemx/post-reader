@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
-import 'package:offline_posts/main.dart';
-import 'package:offline_posts/models/post_model.dart';
-import 'package:offline_posts/services/favorites_service.dart';
-import 'package:offline_posts/services/post_service.dart';
+import 'package:post_reader/main.dart';
+import 'package:post_reader/models/post_model.dart';
+import 'package:post_reader/services/favorites_service.dart';
+import 'package:post_reader/services/post_service.dart';
 
 void main() {
   late Box<Post> posts;
@@ -37,8 +37,11 @@ void main() {
         return response;
       },
     );
-    await tester.pumpWidget(PostsApp(posts: service, favorites: favorites));
+    await tester.pumpWidget(
+      PostReaderApp(posts: service, favorites: favorites),
+    );
     await tester.pumpAndSettle();
+    expect(find.text('All posts'), findsOneWidget);
     await tester.tap(find.byTooltip('Add post 1 to favorites'));
     await tester.pumpAndSettle();
     expect(find.byTooltip('Remove post 1 from favorites'), findsOneWidget);
@@ -49,16 +52,17 @@ void main() {
     expect(favorites.isFavorite(1), isTrue);
     await tester.tap(find.text('Favorites'));
     await tester.pumpAndSettle();
+    expect(find.text('My favorites'), findsOneWidget);
     expect(find.text('First post'), findsOneWidget);
     await tester.tap(find.byTooltip('Remove post 1 from favorites'));
     await tester.pumpAndSettle();
     expect(find.text('No favorites yet'), findsOneWidget);
-    await tester.tap(find.text('Browse posts'));
+    await tester.tap(find.text('Back to posts'));
     await tester.pumpAndSettle();
     expect(find.byTooltip('Add post 1 to favorites'), findsOneWidget);
   });
 
-  testWidgets('Retry loads posts after a first offline launch', (tester) async {
+  testWidgets('posts load after retrying the first download', (tester) async {
     var connected = false;
     final service = PostService(
       posts,
@@ -67,13 +71,15 @@ void main() {
         return response;
       },
     );
-    await tester.pumpWidget(PostsApp(posts: service, favorites: favorites));
+    await tester.pumpWidget(
+      PostReaderApp(posts: service, favorites: favorites),
+    );
     await tester.pumpAndSettle();
-    expect(find.text('No cached posts yet'), findsOneWidget);
+    expect(find.text('Go online to load posts'), findsOneWidget);
     connected = true;
-    await tester.tap(find.text('Retry'));
+    await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
     expect(find.text('First post'), findsOneWidget);
-    expect(find.text('Live feed'), findsOneWidget);
+    expect(find.text('Up to date'), findsOneWidget);
   });
 }

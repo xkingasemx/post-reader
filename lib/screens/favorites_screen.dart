@@ -10,7 +10,7 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Favorites')),
+    appBar: AppBar(title: const Text('My favorites')),
     body: ReadingColumn(
       child: ValueListenableBuilder(
         valueListenable: favorites.changes,
@@ -20,8 +20,8 @@ class FavoritesScreen extends StatelessWidget {
             return ListMessage(
               icon: Icons.star_border,
               title: 'No favorites yet',
-              body: 'Tap the star beside a post to save it here.',
-              action: 'Browse posts',
+              body: 'Tap the star next to a post to save it here.',
+              action: 'Back to posts',
               onPressed: () => Navigator.of(context).pop(),
             );
           }
@@ -29,7 +29,7 @@ class FavoritesScreen extends StatelessWidget {
             children: [
               ListHeading(
                 count: posts.length,
-                status: 'On this device',
+                status: 'Saved on this device',
                 icon: Icons.offline_pin_outlined,
               ),
               Expanded(

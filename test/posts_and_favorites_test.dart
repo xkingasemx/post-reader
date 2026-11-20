@@ -5,9 +5,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
-import 'package:offline_posts/models/post_model.dart';
-import 'package:offline_posts/services/favorites_service.dart';
-import 'package:offline_posts/services/post_service.dart';
+import 'package:post_reader/models/post_model.dart';
+import 'package:post_reader/services/favorites_service.dart';
+import 'package:post_reader/services/post_service.dart';
 
 void main() {
   late Directory folder;
@@ -27,7 +27,7 @@ void main() {
       throw http.ClientException('Network unavailable', url);
 
   setUp(() async {
-    folder = await Directory.systemTemp.createTemp('offline_posts_');
+    folder = await Directory.systemTemp.createTemp('post_reader_');
     Hive.init(folder.path);
     if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(PostAdapter());
     postsBox = await Hive.openBox<Post>('postsBox');

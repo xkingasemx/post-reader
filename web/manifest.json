@@ -1,11 +1,11 @@
 {
-    "name": "Offline Posts",
-    "short_name": "Offline Posts",
+    "name": "Post Reader",
+    "short_name": "Post Reader",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#173F36",
     "theme_color": "#173F36",
-    "description": "A posts reader with offline access and saved favorites.",
+    "description": "Read posts and keep your favorites handy offline.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
